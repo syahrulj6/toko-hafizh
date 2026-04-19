@@ -1,9 +1,9 @@
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { checkoutSchema } from "@/lib/validators/checkout";
-import { createWhatsAppCheckoutLink } from "@/lib/whatsapp";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { checkoutSchema } from '@/lib/validators/checkout';
+import { createWhatsAppCheckoutLink } from '@/lib/whatsapp';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const parsed = checkoutSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+      return NextResponse.json({ message: 'Data tidak valid' }, { status: 400 });
     }
 
     const ids = parsed.data.items.map((item) => item.productId);
@@ -24,10 +24,10 @@ export async function POST(request: Request) {
     const lineItems = parsed.data.items.map((item) => {
       const product = productMap.get(item.productId);
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error('Produk tidak ditemukan');
       }
       if (item.quantity > product.stock) {
-        throw new Error(`Insufficient stock for ${product.name}`);
+        throw new Error(`Stok tidak mencukupi untuk ${product.name}`);
       }
       return {
         productId: product.id,
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ orderId: order.id, waUrl }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Checkout failed";
+    const message = error instanceof Error ? error.message : 'Pembayaran gagal';
     return NextResponse.json({ message }, { status: 400 });
   }
 }

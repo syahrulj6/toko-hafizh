@@ -1,41 +1,35 @@
-import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { AuthActions } from "@/components/shared/auth-actions";
+import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { NavbarActions } from '../../components/shared/navbar-actions';
 
-export default async function PublicLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await getServerSession(authOptions);
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-[#346739]/15 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-[#1f4122]">
+      <header className="sticky top-0 z-30 border-b border-[var(--color-brand-border)] bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+          <Link href="/" className="text-[13px] font-black uppercase tracking-[0.08em] text-black transition hover:text-[var(--color-brand-700)] md:text-sm">
             Toko Hafizh
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/products" className="text-slate-700 hover:text-[#346739]">
-              Products
+
+          <nav className="hidden items-center justify-center gap-8 text-xs font-semibold uppercase tracking-[0.14em] text-black lg:flex">
+            <Link href="/" className="transition hover:text-[var(--color-brand-700)]">
+              Beranda
             </Link>
-            <Link href="/cart" className="text-slate-700 hover:text-[#346739]">
-              Cart
+            <Link href="/products" className="transition hover:text-[var(--color-brand-700)]">
+              Belanja
             </Link>
-            <Link href="/checkout" className="text-slate-700 hover:text-[#346739]">
-              Checkout
+            <Link href="/products" className="transition hover:text-[var(--color-brand-700)]">
+              Tentang Kami
             </Link>
-            {session?.user?.role === "ADMIN" ? (
-              <Link href="/dashboard/products" className="text-slate-700 hover:text-[#346739]">
-                Dashboard
-              </Link>
-            ) : null}
-            <AuthActions />
           </nav>
+
+          <NavbarActions isAdmin={session?.user?.role === 'ADMIN'} />
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
     </div>
   );
 }
-

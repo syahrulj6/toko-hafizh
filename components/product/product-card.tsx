@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useCartStore } from "@/store/cart-store";
-import { formatIDR } from "@/lib/currency";
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { useCartStore } from '@/store/cart-store';
+import { formatIDR } from '@/lib/currency';
 
 type ProductCardProps = {
   product: {
@@ -29,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <p className="mt-1 text-sm text-slate-600">{product.description}</p>
       <div className="mt-3 flex items-center justify-between">
         <span className="text-sm font-semibold text-[#346739]">{formatIDR(product.price)}</span>
-        <span className="text-xs text-slate-500">Stock: {product.stock}</span>
+        <span className="text-xs text-slate-500">Stok: {product.stock}</span>
       </div>
       <Button
         className="mt-4 w-full"
@@ -44,9 +44,8 @@ export function ProductCard({ product }: ProductCardProps) {
           })
         }
       >
-        {product.stock < 1 ? "Out of Stock" : "Add to Cart"}
+        {product.stock < 1 ? 'Stok habis' : 'Tambah ke Keranjang'}
       </Button>
     </article>
   );
 }
-

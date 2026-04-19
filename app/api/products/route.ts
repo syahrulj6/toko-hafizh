@@ -1,13 +1,13 @@
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { productSchema } from "@/lib/validators/product";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { productSchema } from '@/lib/validators/product';
 
 export async function GET() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: 'desc' },
   });
 
   return NextResponse.json(products);
@@ -15,8 +15,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Tidak berwenang' }, { status: 401 });
   }
 
   try {
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const parsed = productSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+      return NextResponse.json({ message: 'Data tidak valid' }, { status: 400 });
     }
 
     const product = await prisma.product.create({
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(product, { status: 201 });
   } catch {
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: 'Kesalahan server internal' }, { status: 500 });
   }
 }

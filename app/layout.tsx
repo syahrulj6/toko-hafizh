@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { Providers } from "@/app/providers";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Providers } from '@/app/providers';
+import './globals.css';
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+  variable: '--font-inter',
+  subsets: ['latin'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
+  variable: '--font-jetbrains-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Toko Hafizh",
-  description: "Fullstack e-commerce app",
+  title: 'Toko Hafizh',
+  description: 'Fullstack e-commerce app',
 };
 
 export default function RootLayout({
@@ -24,11 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-[#f7faf7] text-slate-900 flex flex-col">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
+      <body data-theme="emerald" className="min-h-full flex flex-col bg-[var(--color-app-bg)] text-[var(--color-app-foreground)]">
         <Providers>{children}</Providers>
       </body>
     </html>

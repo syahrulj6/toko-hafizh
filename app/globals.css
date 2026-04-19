@@ -5,6 +5,36 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* App shell */
+  --color-app-bg: #f7faf7;
+  --color-app-foreground: #0f172a;
+
+  /* Brand palette */
+  --color-brand-900: #1f4122;
+  --color-brand-700: #346739;
+  --color-brand-600: #2f5f34;
+  --color-brand-muted: #4c744f;
+  --color-brand-soft: #eef5ee;
+  --color-brand-soft-alt: #e6efe7;
+  --color-brand-border: #34673933;
+  --color-brand-border-strong: #3467394d;
+  --color-brand-hover-bg: #3467391a;
+}
+
+html[data-theme='emerald'] {
+  --color-app-bg: #f7faf7;
+  --color-app-foreground: #0f172a;
+
+  --color-brand-900: #1f4122;
+  --color-brand-700: #346739;
+  --color-brand-600: #2f5f34;
+  --color-brand-muted: #4c744f;
+  --color-brand-soft: #eef5ee;
+  --color-brand-soft-alt: #e6efe7;
+  --color-brand-border: #34673933;
+  --color-brand-border-strong: #3467394d;
+  --color-brand-hover-bg: #3467391a;
 }
 
 @media (prefers-color-scheme: dark) {

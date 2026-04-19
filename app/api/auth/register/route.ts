@@ -1,7 +1,7 @@
-import bcrypt from "bcrypt";
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { registerSchema } from "@/lib/validators/auth";
+import bcrypt from 'bcrypt';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { registerSchema } from '@/lib/validators/auth';
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+      return NextResponse.json({ message: 'Data tidak valid' }, { status: 400 });
     }
 
     const existed = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     });
 
     if (existed) {
-      return NextResponse.json({ message: "Email already exists" }, { status: 409 });
+      return NextResponse.json({ message: 'Email sudah terdaftar' }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
@@ -32,11 +32,8 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(
-      { id: user.id, email: user.email, name: user.name },
-      { status: 201 },
-    );
+    return NextResponse.json({ id: user.id, email: user.email, name: user.name }, { status: 201 });
   } catch {
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: 'Kesalahan server internal' }, { status: 500 });
   }
 }

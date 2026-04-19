@@ -1,8 +1,8 @@
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { productSchema } from "@/lib/validators/product";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { productSchema } from '@/lib/validators/product';
 
 type ProductRouteContext = {
   params: { id: string };
@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: ProductRouteContext) {
   const product = await prisma.product.findUnique({ where: { id } });
 
   if (!product) {
-    return NextResponse.json({ message: "Product not found" }, { status: 404 });
+    return NextResponse.json({ message: 'Produk tidak ditemukan' }, { status: 404 });
   }
 
   return NextResponse.json(product);
@@ -21,8 +21,8 @@ export async function GET(_request: Request, context: ProductRouteContext) {
 
 export async function PUT(request: Request, context: ProductRouteContext) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Tidak berwenang' }, { status: 401 });
   }
 
   const { id } = context.params;
@@ -31,7 +31,7 @@ export async function PUT(request: Request, context: ProductRouteContext) {
     const body = (await request.json()) as unknown;
     const parsed = productSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ message: "Invalid payload" }, { status: 400 });
+      return NextResponse.json({ message: 'Data tidak valid' }, { status: 400 });
     }
 
     const product = await prisma.product.update({
@@ -41,14 +41,14 @@ export async function PUT(request: Request, context: ProductRouteContext) {
 
     return NextResponse.json(product);
   } catch {
-    return NextResponse.json({ message: "Failed to update product" }, { status: 500 });
+    return NextResponse.json({ message: 'Gagal memperbarui produk' }, { status: 500 });
   }
 }
 
 export async function DELETE(_request: Request, context: ProductRouteContext) {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Tidak berwenang' }, { status: 401 });
   }
 
   const { id } = context.params;
@@ -59,6 +59,6 @@ export async function DELETE(_request: Request, context: ProductRouteContext) {
     });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ message: "Failed to delete product" }, { status: 500 });
+    return NextResponse.json({ message: 'Gagal menghapus produk' }, { status: 500 });
   }
 }
