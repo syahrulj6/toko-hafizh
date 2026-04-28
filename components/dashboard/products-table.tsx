@@ -1,11 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { formatIDR } from '@/lib/currency';
 
 type Product = {
   id: string;
+  image: string;
   name: string;
   price: number;
   stock: number;
@@ -41,6 +43,7 @@ export function ProductsTable() {
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
             <tr className="border-b border-[#346739]/15 text-slate-500">
+              <th className="px-2 py-2">Gambar</th>
               <th className="px-2 py-2">Nama</th>
               <th className="px-2 py-2">Harga</th>
               <th className="px-2 py-2">Stok</th>
@@ -51,6 +54,11 @@ export function ProductsTable() {
           <tbody>
             {data?.map((product) => (
               <tr key={product.id} className="border-b border-[#346739]/10">
+                <td className="px-2 py-2">
+                  <div className="relative h-12 w-12 overflow-hidden rounded-md border border-[#346739]/20 bg-slate-100">
+                    <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
+                  </div>
+                </td>
                 <td className="px-2 py-2">{product.name}</td>
                 <td className="px-2 py-2">{formatIDR(product.price)}</td>
                 <td className="px-2 py-2">{product.stock}</td>

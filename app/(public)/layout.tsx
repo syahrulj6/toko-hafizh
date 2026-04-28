@@ -21,7 +21,7 @@ export default async function PublicLayout({ children }: Readonly<{ children: Re
             <Link href="/products" className="transition hover:text-[var(--color-brand-700)]">
               Belanja
             </Link>
-            <Link href="/products" className="transition hover:text-[var(--color-brand-700)]">
+            <Link href="/about" className="transition hover:text-[var(--color-brand-700)]">
               Tentang Kami
             </Link>
           </nav>
