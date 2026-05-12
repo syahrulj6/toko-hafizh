@@ -1,30 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { checkoutSchema, type CheckoutInput } from '@/lib/validators/checkout';
+import { normalizeIndonesianPhoneInput } from '@/lib/phone';
 import { useCartStore } from '@/store/cart-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatIDR } from '@/lib/currency';
 
+const checkoutFormSchema = checkoutSchema.omit({ items: true });
+
+type CheckoutFormInput = Omit<CheckoutInput, 'items'>;
+
 export default function CheckoutPage() {
   const [error, setError] = useState<string>('');
+  const { status } = useSession();
   const items = useCartStore((state) => state.items);
   const subtotal = useCartStore((state) => state.subtotal());
   const clearCart = useCartStore((state) => state.clearCart);
 
-  const form = useForm<CheckoutInput>({
-    resolver: zodResolver(checkoutSchema),
+  const form = useForm<CheckoutFormInput>({
+    resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       customerName: '',
-      customerPhone: '',
+      customerPhone: '+62',
       customerAddr: '',
       notes: '',
-      items: [],
     },
   });
+
+  const customerPhoneValue = form.watch('customerPhone');
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      const callbackUrl = encodeURIComponent('/checkout');
+      window.location.assign(`/login?callbackUrl=${callbackUrl}`);
+    }
+  }, [status]);
+
+  if (status === 'loading') {
+    return <p className="text-sm text-slate-600">Memeriksa sesi login...</p>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <p className="text-sm text-slate-600">Mengarahkan ke halaman login...</p>;
+  }
 
   const onSubmit = form.handleSubmit(async (values) => {
     setError('');
@@ -64,7 +87,19 @@ export default function CheckoutPage() {
       <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-[#346739]/20 bg-white p-4">
         <h1 className="text-2xl font-bold text-[#1f4122]">Pembayaran</h1>
         <Input placeholder="Nama lengkap" {...form.register('customerName')} />
-        <Input placeholder="Nomor telepon" {...form.register('customerPhone')} />
+        <Input
+          type="tel"
+          inputMode="tel"
+          placeholder="+62 8xx..."
+          value={customerPhoneValue}
+          onChange={(event) =>
+            form.setValue('customerPhone', normalizeIndonesianPhoneInput(event.target.value), {
+              shouldDirty: true,
+              shouldTouch: true,
+              shouldValidate: true,
+            })
+          }
+        />
         <textarea className="min-h-28 w-full rounded-lg border border-[#346739]/30 p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45" placeholder="Alamat" {...form.register('customerAddr')} />
         <textarea className="min-h-24 w-full rounded-lg border border-[#346739]/30 p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45" placeholder="Catatan (opsional)" {...form.register('notes')} />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}

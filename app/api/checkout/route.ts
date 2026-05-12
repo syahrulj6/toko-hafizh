@@ -2,12 +2,17 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { normalizeIndonesianPhoneInput } from '@/lib/phone';
 import { checkoutSchema } from '@/lib/validators/checkout';
 import { createWhatsAppCheckoutLink } from '@/lib/whatsapp';
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ message: 'Silakan login terlebih dahulu.' }, { status: 401 });
+    }
+
     const body = (await request.json()) as unknown;
     const parsed = checkoutSchema.safeParse(body);
 
@@ -41,9 +46,9 @@ export async function POST(request: Request) {
 
     const order = await prisma.order.create({
       data: {
-        userId: session?.user?.id,
+        userId: session.user.id,
         customerName: parsed.data.customerName,
-        customerPhone: parsed.data.customerPhone,
+        customerPhone: normalizeIndonesianPhoneInput(parsed.data.customerPhone),
         customerAddr: parsed.data.customerAddr,
         notes: parsed.data.notes,
         total,

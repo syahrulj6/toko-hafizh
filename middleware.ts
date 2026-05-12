@@ -20,9 +20,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname.startsWith("/checkout") && !token) {
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${pathname}`, request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/checkout/:path*"],
 };

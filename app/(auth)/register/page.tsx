@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterInput } from '@/lib/validators/auth';
+import { normalizeIndonesianPhoneInput } from '@/lib/phone';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -19,10 +20,12 @@ export default function RegisterPage() {
       name: '',
       email: '',
       password: '',
-      phone: '',
+      phone: '+62',
       address: '',
     },
   });
+
+  const phoneValue = form.watch('phone');
 
   const onSubmit = form.handleSubmit(async (values) => {
     setError('');
@@ -51,7 +54,19 @@ export default function RegisterPage() {
         <Input placeholder="Nama" {...form.register('name')} />
         <Input placeholder="Email" {...form.register('email')} />
         <Input type="password" placeholder="Kata sandi" {...form.register('password')} />
-        <Input placeholder="No. telepon" {...form.register('phone')} />
+        <Input
+          type="tel"
+          inputMode="tel"
+          placeholder="+62 8xx..."
+          value={phoneValue}
+          onChange={(event) =>
+            form.setValue('phone', normalizeIndonesianPhoneInput(event.target.value), {
+              shouldDirty: true,
+              shouldTouch: true,
+              shouldValidate: true,
+            })
+          }
+        />
         <textarea className="min-h-24 w-full rounded-lg border border-[#346739]/30 p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45" placeholder="Alamat" {...form.register('address')} />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>

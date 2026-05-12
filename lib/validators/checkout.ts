@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const checkoutItemSchema = z.object({
   productId: z.string().min(1),
@@ -6,11 +6,11 @@ export const checkoutItemSchema = z.object({
 });
 
 export const checkoutSchema = z.object({
-  customerName: z.string().min(2, "Name is required"),
-  customerPhone: z.string().min(10, "Phone number is required"),
-  customerAddr: z.string().min(8, "Address is required"),
+  customerName: z.string().min(2, 'Name is required'),
+  customerPhone: z.string().regex(/^\+62\d{8,14}$/, 'Phone number must use +62 format'),
+  customerAddr: z.string().min(8, 'Address is required'),
   notes: z.string().optional(),
-  items: z.array(checkoutItemSchema).min(1, "Cart is empty"),
+  items: z.array(checkoutItemSchema).min(1, 'Cart is empty'),
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

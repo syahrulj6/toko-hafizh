@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { normalizeIndonesianPhoneInput } from '@/lib/phone';
 import { registerSchema } from '@/lib/validators/auth';
 
 export async function POST(request: Request) {
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         email: parsed.data.email,
         password: hashedPassword,
-        phone: parsed.data.phone,
+        phone: normalizeIndonesianPhoneInput(parsed.data.phone),
         address: parsed.data.address,
       },
     });
