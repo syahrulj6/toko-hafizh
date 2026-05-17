@@ -41,6 +41,24 @@ export default function CheckoutPage() {
     }
   }, [status]);
 
+  // fetch profile to autofill form when authenticated
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const res = await fetch('/api/profile');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.name) form.setValue('customerName', data.name, { shouldDirty: false });
+        if (data.phone) form.setValue('customerPhone', normalizeIndonesianPhoneInput(data.phone), { shouldDirty: false });
+        if (data.address) form.setValue('customerAddr', data.address, { shouldDirty: false });
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    if (status === 'authenticated') loadProfile();
+  }, [status]);
+
   if (status === 'loading') {
     return <p className="text-sm text-slate-600">Memeriksa sesi login...</p>;
   }
@@ -79,7 +97,8 @@ export default function CheckoutPage() {
 
     const body = (await res.json()) as { waUrl: string };
     clearCart();
-    window.location.assign(body.waUrl);
+    // open WhatsApp checkout in a new tab so user keeps the site open
+    window.open(body.waUrl, '_blank', 'noopener,noreferrer');
   });
 
   return (

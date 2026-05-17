@@ -48,6 +48,10 @@ model Order {
   customerAddr  String
   notes         String?
   total         Int
+  shipping      Int?        @default(0)
+  paymentMethod String?
+  paymentProof  String?
+  trackingNumber String?
   status        OrderStatus @default(PENDING)
   items         OrderItem[]
   createdAt     DateTime    @default(now())
