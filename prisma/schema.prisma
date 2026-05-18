@@ -21,8 +21,23 @@ model User {
   address      String?
   role         Role     @default(USER)
   orders       Order[]
+  passwordResetTokens PasswordResetToken[]
+  statusChanges OrderStatusHistory[] @relation("OrderStatusChangedBy")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Product {
@@ -54,6 +69,7 @@ model Order {
   trackingNumber String?
   status        OrderStatus @default(PENDING)
   items         OrderItem[]
+  statusHistory OrderStatusHistory[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
@@ -69,6 +85,22 @@ model OrderItem {
   product Product  @relation(fields: [productId], references: [id])
 
   @@unique([orderId, productId])
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(uuid())
+  orderId     String
+  oldStatus   OrderStatus?
+  newStatus   OrderStatus
+  note        String?
+  changedById String?
+  createdAt   DateTime     @default(now())
+
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  changedBy   User?        @relation("OrderStatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([orderId, createdAt])
+  @@index([changedById])
 }
 
 enum Role {

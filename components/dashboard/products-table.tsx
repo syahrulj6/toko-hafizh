@@ -37,8 +37,11 @@ export function ProductsTable() {
   }
 
   return (
-    <div className="rounded-xl border border-[#346739]/20 bg-white p-4">
-      <h2 className="text-lg font-semibold text-[#1f4122]">Daftar Produk</h2>
+    <div className="rounded-xl border border-[#346739]/20 bg-white p-4 shadow-sm">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-[#1f4122]">Daftar Produk</h2>
+        <p className="text-sm text-slate-500">Semua item yang tampil di etalase publik.</p>
+      </div>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
@@ -52,6 +55,13 @@ export function ProductsTable() {
             </tr>
           </thead>
           <tbody>
+            {data?.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-2 py-8 text-center text-sm text-slate-500">
+                  Belum ada produk. Tambahkan produk pertama Anda melalui formulir di atas.
+                </td>
+              </tr>
+            ) : null}
             {data?.map((product) => (
               <tr key={product.id} className="border-b border-[#346739]/10">
                 <td className="px-2 py-2">
@@ -62,10 +72,18 @@ export function ProductsTable() {
                 <td className="px-2 py-2">{product.name}</td>
                 <td className="px-2 py-2">{formatIDR(product.price)}</td>
                 <td className="px-2 py-2">{product.stock}</td>
-                <td className="px-2 py-2">{product.isActive ? 'Aktif' : 'Nonaktif'}</td>
                 <td className="px-2 py-2">
-                  <Link href={`/dashboard/products/${product.id}`} className="font-medium text-[#346739]">
-                    Ubah
+                  <span
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                      product.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    {product.isActive ? 'Aktif' : 'Nonaktif'}
+                  </span>
+                </td>
+                <td className="px-2 py-2">
+                  <Link href={`/dashboard/products/${product.id}`} className="font-medium text-[#346739] hover:underline">
+                    Edit
                   </Link>
                 </td>
               </tr>

@@ -97,7 +97,14 @@ export function NavbarActions({ isAdmin }: NavbarActionsProps) {
               Toko
             </Link>
             <Link
-              href="/products"
+              href="/orders"
+              onClick={() => setMenuOpen(false)}
+              className="block rounded-lg border border-[var(--color-brand-700)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white"
+            >
+              Pesanan Saya
+            </Link>
+            <Link
+              href="/about"
               onClick={() => setMenuOpen(false)}
               className="block rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-[var(--color-brand-hover-bg)] hover:text-[var(--color-brand-700)]"
             >

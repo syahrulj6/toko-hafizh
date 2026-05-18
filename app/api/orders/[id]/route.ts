@@ -11,7 +11,13 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   const order = await prisma.order.findUnique({
     where: { id: params.id },
-    include: { items: { include: { product: true } } },
+    include: {
+      items: { include: { product: true } },
+      statusHistory: {
+        include: { changedBy: { select: { id: true, name: true, email: true } } },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
 
   if (!order) return NextResponse.json({ message: 'Order tidak ditemukan' }, { status: 404 });
@@ -38,7 +44,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!order) return NextResponse.json({ message: 'Order tidak ditemukan' }, { status: 404 });
     if (order.userId && order.userId !== session.user.id) return NextResponse.json({ message: 'Tidak berwenang' }, { status: 401 });
 
-    const data: any = {};
+    const data: { paymentMethod?: string; paymentProof?: string } = {};
     if (paymentMethod !== undefined) data.paymentMethod = paymentMethod;
     if (paymentProof !== undefined) data.paymentProof = paymentProof;
     // when user uploads proof, mark as PAID? Keep as PAID only when admin verifies to avoid auto-accept.
@@ -46,7 +52,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     const updated = await prisma.order.update({ where: { id: params.id }, data });
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ message: 'Gagal memperbarui bukti pembayaran' }, { status: 500 });
   }
 }

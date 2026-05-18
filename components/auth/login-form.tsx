@@ -47,6 +47,11 @@ export function LoginForm() {
       <form className="mt-4 space-y-3" onSubmit={onSubmit}>
         <Input placeholder="Email" {...form.register('email')} />
         <Input type="password" placeholder="Kata sandi" {...form.register('password')} />
+        <div className="text-right">
+          <Link href="/forgot-password" className="text-xs font-medium text-[#346739] hover:underline">
+            Lupa kata sandi?
+          </Link>
+        </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? 'Sedang masuk...' : 'Masuk'}

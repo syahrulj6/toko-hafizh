@@ -51,13 +51,13 @@ export default function CheckoutPage() {
         if (data.name) form.setValue('customerName', data.name, { shouldDirty: false });
         if (data.phone) form.setValue('customerPhone', normalizeIndonesianPhoneInput(data.phone), { shouldDirty: false });
         if (data.address) form.setValue('customerAddr', data.address, { shouldDirty: false });
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
 
     if (status === 'authenticated') loadProfile();
-  }, [status]);
+  }, [status, form]);
 
   if (status === 'loading') {
     return <p className="text-sm text-slate-600">Memeriksa sesi login...</p>;

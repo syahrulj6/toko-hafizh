@@ -167,8 +167,8 @@ export function ProductForm({ mode, product }: ProductFormProps) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-[#346739]/20 bg-white p-4">
-      <h2 className="text-lg font-semibold text-[#1f4122]">{mode === 'create' ? 'Buat Produk' : 'Ubah Produk'}</h2>
+    <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-[#346739]/20 bg-white p-4 shadow-sm">
+      <h2 className="text-lg font-semibold text-[#1f4122]">{mode === 'create' ? 'Tambah Produk Baru' : 'Ubah Data Produk'}</h2>
 
       <input type="hidden" {...form.register('image')} />
 
@@ -214,11 +214,17 @@ export function ProductForm({ mode, product }: ProductFormProps) {
         <p className="mx-auto max-w-[420px] text-xs text-slate-500">Gambar akan diambil dari file lokal pengguna dan disimpan ke penyimpanan aplikasi.</p>
       </div>
 
-      <Input placeholder="Nama" {...form.register('name')} />
-      <Input placeholder="Slug" {...form.register('slug')} />
-      <Input type="number" placeholder="Harga" {...form.register('price', { valueAsNumber: true })} />
-      <Input type="number" placeholder="Stok" {...form.register('stock', { valueAsNumber: true })} />
-      <textarea className="min-h-28 w-full rounded-lg border border-[#346739]/30 p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45" placeholder="Deskripsi" {...form.register('description')} />
+      <div className="grid gap-3 md:grid-cols-2">
+        <Input placeholder="Nama produk" {...form.register('name')} />
+        <Input placeholder="Slug produk (contoh: tas-kulit-premium)" {...form.register('slug')} />
+        <Input type="number" placeholder="Harga produk" {...form.register('price', { valueAsNumber: true })} />
+        <Input type="number" placeholder="Jumlah stok" {...form.register('stock', { valueAsNumber: true })} />
+      </div>
+      <textarea
+        className="min-h-28 w-full rounded-lg border border-[#346739]/30 p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45"
+        placeholder="Deskripsi produk"
+        {...form.register('description')}
+      />
       <label className="flex items-center gap-2 text-sm text-slate-700">
         <input type="checkbox" {...form.register('isActive')} />
         Produk aktif
@@ -226,7 +232,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" disabled={mutation.isPending || form.formState.isSubmitting}>
-        {mutation.isPending || form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Produk'}
+        {mutation.isPending || form.formState.isSubmitting ? 'Menyimpan...' : mode === 'create' ? 'Simpan Produk' : 'Perbarui Produk'}
       </Button>
     </form>
   );
