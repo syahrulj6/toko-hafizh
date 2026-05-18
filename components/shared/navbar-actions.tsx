@@ -8,9 +8,10 @@ import { useOutsideClick } from '@/lib/hooks/use-outside-click';
 
 type NavbarActionsProps = {
   isAdmin: boolean;
+  hasOrders: boolean;
 };
 
-export function NavbarActions({ isAdmin }: NavbarActionsProps) {
+export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -96,13 +97,15 @@ export function NavbarActions({ isAdmin }: NavbarActionsProps) {
             >
               Toko
             </Link>
-            <Link
-              href="/orders"
-              onClick={() => setMenuOpen(false)}
-              className="block rounded-lg border border-[var(--color-brand-700)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white"
-            >
-              Pesanan Saya
-            </Link>
+            {hasOrders ? (
+              <Link
+                href="/orders"
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg border border-[var(--color-brand-700)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white"
+              >
+                Pesanan Saya
+              </Link>
+            ) : null}
             <Link
               href="/about"
               onClick={() => setMenuOpen(false)}

@@ -1,10 +1,19 @@
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { NavbarActions } from '../../components/shared/navbar-actions';
 
 export default async function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await getServerSession(authOptions);
+  const hasOrders = session?.user?.id
+    ? Boolean(
+        await prisma.order.findFirst({
+          where: { userId: session.user.id },
+          select: { id: true },
+        }),
+      )
+    : false;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(52,103,57,0.08),transparent_48%),radial-gradient(circle_at_top_left,rgba(31,65,34,0.06),transparent_34%),#f7faf7]">
@@ -24,12 +33,14 @@ export default async function PublicLayout({ children }: Readonly<{ children: Re
             <Link href="/about" className="transition hover:text-[var(--color-brand-700)]">
               Tentang Kami
             </Link>
-            <Link href="/orders" className="rounded-full border border-[var(--color-brand-700)] px-3 py-1 text-[11px] tracking-[0.1em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white">
-              Pesanan Saya
-            </Link>
+            {hasOrders ? (
+              <Link href="/orders" className="rounded-full border border-[var(--color-brand-700)] px-3 py-1 text-[11px] tracking-[0.1em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white">
+                Pesanan Saya
+              </Link>
+            ) : null}
           </nav>
 
-          <NavbarActions isAdmin={session?.user?.role === 'ADMIN'} />
+          <NavbarActions isAdmin={session?.user?.role === 'ADMIN'} hasOrders={hasOrders} />
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:py-8">{children}</main>
