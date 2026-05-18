@@ -5,6 +5,7 @@ import { Menu, Search, ShoppingBag } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { AuthActions } from '@/components/shared/auth-actions';
 import { useOutsideClick } from '@/lib/hooks/use-outside-click';
+import { useCartStore } from '@/store/cart-store';
 
 type NavbarActionsProps = {
   isAdmin: boolean;
@@ -14,6 +15,7 @@ type NavbarActionsProps = {
 export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const cartItemsCount = useCartStore((state) => state.totalItems());
 
   const searchRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -54,8 +56,13 @@ export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
 
       <AuthActions />
 
-      <Link href="/cart" aria-label="Open cart" className="inline-flex h-9 w-9 items-center justify-center rounded-full text-black transition hover:bg-[var(--color-brand-hover-bg)] hover:text-[var(--color-brand-700)]">
+      <Link href="/cart" aria-label="Open cart" className="relative inline-flex h-9 w-9 items-center justify-center rounded-full text-black transition hover:bg-[var(--color-brand-hover-bg)] hover:text-[var(--color-brand-700)]">
         <ShoppingBag size={18} strokeWidth={2.1} />
+        {cartItemsCount > 0 ? (
+          <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-brand-700)] px-1 text-[10px] font-bold leading-none text-white">
+            {cartItemsCount > 99 ? '99+' : cartItemsCount}
+          </span>
+        ) : null}
       </Link>
 
       {isAdmin ? (
