@@ -1,24 +1,60 @@
 import { prisma } from '@/lib/prisma';
 import { formatIDR } from '@/lib/currency';
+import RevenueOrdersChart from '@/components/dashboard/revenue-orders-chart';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: {
+    range?: string;
+  };
+};
+
+function getJakartaDateKey(date: Date) {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return formatter.format(date);
+}
+
+function getUtcFromJakartaMidnight(year: number, monthIndex: number, day: number) {
+  return new Date(Date.UTC(year, monthIndex, day, -7, 0, 0));
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfWeekWindow = new Date(startOfToday);
-  startOfWeekWindow.setDate(startOfWeekWindow.getDate() - 6);
+  const jakartaDateParts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now);
+  const jakartaYear = Number(jakartaDateParts.find((part) => part.type === 'year')?.value ?? now.getFullYear());
+  const jakartaMonthIndex = Number(jakartaDateParts.find((part) => part.type === 'month')?.value ?? now.getMonth() + 1) - 1;
+  const jakartaDay = Number(jakartaDateParts.find((part) => part.type === 'day')?.value ?? now.getDate());
+
+  const selectedRange = searchParams?.range === '1m' || searchParams?.range === '1y' ? searchParams.range : '7d';
+  const todayJakartaStartUtc = getUtcFromJakartaMidnight(jakartaYear, jakartaMonthIndex, jakartaDay);
+  const tomorrowJakartaStartUtc = getUtcFromJakartaMidnight(jakartaYear, jakartaMonthIndex, jakartaDay + 1);
+
+  const chartStartUtc = new Date(todayJakartaStartUtc);
+  if (selectedRange === '7d') chartStartUtc.setUTCDate(chartStartUtc.getUTCDate() - 6);
+  if (selectedRange === '1m') chartStartUtc.setUTCDate(chartStartUtc.getUTCDate() - 29);
+  if (selectedRange === '1y') chartStartUtc.setUTCFullYear(chartStartUtc.getUTCFullYear() - 1);
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  const [productsCount, ordersCount, revenue, weeklyOrders, statusCounts, monthStats, lastMonthStats] = await Promise.all([
+  const [productsCount, ordersCount, revenue, chartOrders, statusCounts, monthStats, lastMonthStats] = await Promise.all([
     prisma.product.count(),
     prisma.order.count(),
     prisma.order.aggregate({ _sum: { total: true } }),
     prisma.order.findMany({
-      where: { createdAt: { gte: startOfWeekWindow } },
+      where: { createdAt: { gte: chartStartUtc, lt: tomorrowJakartaStartUtc } },
       select: { id: true, total: true, status: true, createdAt: true },
       orderBy: { createdAt: 'asc' },
     }),
@@ -38,28 +74,55 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const dayBuckets = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(startOfWeekWindow);
-    date.setDate(startOfWeekWindow.getDate() + i);
-    const key = date.toISOString().slice(0, 10);
-    return {
-      key,
-      label: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
-      orders: 0,
-      revenue: 0,
-    };
-  });
-
-  const dayIndexMap = new Map(dayBuckets.map((day, index) => [day.key, index]));
-  for (const order of weeklyOrders) {
-    const key = new Date(order.createdAt).toISOString().slice(0, 10);
-    const index = dayIndexMap.get(key);
-    if (index === undefined) continue;
-    dayBuckets[index].orders += 1;
-    dayBuckets[index].revenue += order.total;
+  const chartPoints: Array<{ key: string; label: string; orders: number; revenue: number }> = [];
+  if (selectedRange === '1y') {
+    const monthBuckets = Array.from({ length: 12 }, (_, i) => {
+      const date = new Date(jakartaYear, jakartaMonthIndex - 11 + i, 1);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      return {
+        key,
+        label: date.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
+        orders: 0,
+        revenue: 0,
+      };
+    });
+    const monthIndexMap = new Map(monthBuckets.map((month, index) => [month.key, index]));
+    for (const order of chartOrders) {
+      const d = new Date(order.createdAt);
+      const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit' }).formatToParts(d);
+      const y = parts.find((p) => p.type === 'year')?.value;
+      const m = parts.find((p) => p.type === 'month')?.value;
+      const key = `${y}-${m}`;
+      const idx = monthIndexMap.get(key);
+      if (idx === undefined) continue;
+      monthBuckets[idx].orders += 1;
+      monthBuckets[idx].revenue += order.total;
+    }
+    chartPoints.push(...monthBuckets);
+  } else {
+    const totalDays = selectedRange === '7d' ? 7 : 30;
+    const dayBuckets = Array.from({ length: totalDays }, (_, i) => {
+      const date = new Date(todayJakartaStartUtc);
+      date.setUTCDate(todayJakartaStartUtc.getUTCDate() - (totalDays - 1 - i));
+      const key = getJakartaDateKey(date);
+      return {
+        key,
+        label: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
+        orders: 0,
+        revenue: 0,
+      };
+    });
+    const dayIndexMap = new Map(dayBuckets.map((day, index) => [day.key, index]));
+    for (const order of chartOrders) {
+      const key = getJakartaDateKey(new Date(order.createdAt));
+      const index = dayIndexMap.get(key);
+      if (index === undefined) continue;
+      dayBuckets[index].orders += 1;
+      dayBuckets[index].revenue += order.total;
+    }
+    chartPoints.push(...dayBuckets);
   }
 
-  const maxRevenue = Math.max(...dayBuckets.map((day) => day.revenue), 1);
   const statusMap = statusCounts.reduce<Record<string, number>>((acc, item) => {
     acc[item.status] = item._count._all;
     return acc;
@@ -82,7 +145,7 @@ export default async function DashboardPage() {
     <section className="space-y-5">
       <div>
         <h2 className="text-2xl font-bold text-[#1f4122]">Ringkasan Toko</h2>
-        <p className="text-sm text-slate-600">Pantau performa toko dari KPI utama, status pesanan, dan tren 7 hari terakhir.</p>
+        <p className="text-sm text-slate-600">Pantau performa toko dari KPI utama, status pesanan, dan tren pendapatan/order sesuai rentang waktu.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -106,31 +169,31 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <article className="rounded-xl border border-[#346739]/20 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-semibold text-[#1f4122]">Grafik Pendapatan 7 Hari</p>
-              <p className="text-xs text-slate-500">Pendapatan harian dan jumlah order.</p>
+              <p className="text-sm font-semibold text-[#1f4122]">Grafik Pendapatan & Order</p>
+              <p className="text-xs text-slate-500">Data asli pesanan dengan filter 7 hari, 1 bulan, atau 1 tahun (Asia/Jakarta).</p>
             </div>
-            <p className="text-xs text-slate-500">Maks: {formatIDR(maxRevenue)}</p>
+            <form method="get" className="flex items-center gap-2">
+              <select
+                name="range"
+                defaultValue={selectedRange}
+                className="rounded-lg border border-[#346739]/30 bg-white px-3 py-2 text-xs font-medium text-[#1f4122] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#346739]/45"
+              >
+                <option value="7d">7 Hari</option>
+                <option value="1m">1 Bulan</option>
+                <option value="1y">1 Tahun</option>
+              </select>
+              <button
+                type="submit"
+                className="rounded-lg bg-[#346739] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#2d5b31]"
+              >
+                Terapkan
+              </button>
+            </form>
           </div>
 
-          <div className="grid h-52 grid-cols-7 items-end gap-2">
-            {dayBuckets.map((day) => (
-              <div key={day.key} className="flex h-full flex-col items-center justify-end gap-2">
-                <div className="relative flex h-40 w-full items-end justify-center rounded-md bg-[#f5f8f5]">
-                  <div
-                    className="w-7 rounded-t-md bg-[#346739]"
-                    style={{
-                      height: `${Math.max(6, Math.round((day.revenue / maxRevenue) * 100))}%`,
-                    }}
-                    title={`${day.label}: ${formatIDR(day.revenue)} • ${day.orders} order`}
-                  />
-                  <span className="absolute -top-5 text-[10px] font-semibold text-[#1f4122]">{day.orders}</span>
-                </div>
-                <span className="text-[10px] text-slate-500">{day.label}</span>
-              </div>
-            ))}
-          </div>
+          <RevenueOrdersChart data={chartPoints} />
         </article>
 
         <article className="rounded-xl border border-[#346739]/20 bg-white p-4 shadow-sm">
