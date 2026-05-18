@@ -97,7 +97,14 @@ export async function DELETE(_request: Request, context: ProductRouteContext) {
       where: { id },
     });
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (message.includes('Record to delete does not exist')) {
+      return NextResponse.json({ message: 'Produk tidak ditemukan' }, { status: 404 });
+    }
+    if (message.includes('Foreign key constraint')) {
+      return NextResponse.json({ message: 'Produk tidak bisa dihapus karena sudah dipakai pada pesanan.' }, { status: 400 });
+    }
     return NextResponse.json({ message: 'Gagal menghapus produk' }, { status: 500 });
   }
 }

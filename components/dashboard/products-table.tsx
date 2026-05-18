@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { formatIDR } from '@/lib/currency';
 
@@ -23,10 +24,40 @@ async function getAdminProducts(): Promise<Product[]> {
 }
 
 export function ProductsTable() {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { data, isLoading, isError } = useQuery({
     queryKey: ['admin-products'],
     queryFn: getAdminProducts,
   });
+
+  async function deleteProduct(productId: string, productName: string) {
+    const confirmed = window.confirm(`Hapus produk "${productName}"? Tindakan ini tidak bisa dibatalkan.`);
+    if (!confirmed) return;
+
+    setDeletingId(productId);
+
+    const res = await fetch(`/api/products/${productId}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      let message = 'Gagal menghapus produk.';
+      try {
+        const payload = (await res.json()) as { message?: string };
+        if (payload?.message) {
+          message = payload.message;
+        }
+      } catch {
+        // keep default message
+      }
+      alert(message);
+      setDeletingId(null);
+      return;
+    }
+
+    setDeletingId(null);
+    window.location.reload();
+  }
 
   if (isLoading) {
     return <p className="text-sm text-slate-600">Memuat produk...</p>;
@@ -82,9 +113,19 @@ export function ProductsTable() {
                   </span>
                 </td>
                 <td className="px-2 py-2">
-                  <Link href={`/dashboard/products/${product.id}`} className="font-medium text-[#346739] hover:underline">
-                    Edit
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link href={`/dashboard/products/${product.id}`} className="font-medium text-[#346739] hover:underline">
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => deleteProduct(product.id, product.name)}
+                      disabled={deletingId === product.id}
+                      className="font-medium text-rose-600 transition hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletingId === product.id ? 'Menghapus...' : 'Hapus'}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
