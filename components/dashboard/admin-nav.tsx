@@ -5,7 +5,13 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/dashboard', label: 'Ringkasan Admin', match: (pathname: string) => pathname === '/dashboard' },
-  { href: '/dashboard/products', label: 'Kelola Produk', match: (pathname: string) => pathname.startsWith('/dashboard/products') },
+  {
+    href: '/dashboard/products',
+    label: 'Kelola Produk',
+    match: (pathname: string) =>
+      pathname === '/dashboard/products' || (pathname.startsWith('/dashboard/products/') && pathname !== '/dashboard/products/new'),
+  },
+  { href: '/dashboard/products/new', label: 'Tambah Produk', match: (pathname: string) => pathname === '/dashboard/products/new' },
   { href: '/dashboard/orders', label: 'Kelola Pesanan', match: (pathname: string) => pathname.startsWith('/dashboard/orders') },
   { href: '/', label: 'Lihat Toko', match: () => false },
 ];

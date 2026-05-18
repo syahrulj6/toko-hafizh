@@ -58,7 +58,7 @@ export function ProductsTable() {
             {data?.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-2 py-8 text-center text-sm text-slate-500">
-                  Belum ada produk. Tambahkan produk pertama Anda melalui formulir di atas.
+                  Belum ada produk. Buka menu Tambah Produk untuk membuat produk pertama Anda.
                 </td>
               </tr>
             ) : null}
