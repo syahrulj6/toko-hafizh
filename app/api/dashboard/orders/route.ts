@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { OrderStatus } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sendWhatsAppMessage } from '@/lib/notifications';
@@ -121,9 +122,10 @@ export async function PATCH(request: Request) {
     }
   }
 
-  // notify customer if status changed or tracking added
-  const statusChanged = status && previous.status !== status;
-  const trackingAdded = trackingNumber && previous.trackingNumber !== undefined && trackingNumber !== previous.trackingNumber;
+  // notify customer if status changed or tracking changed
+  const statusChanged = typeof status !== 'undefined' && previous.status !== status;
+  const trackingChanged = typeof trackingNumber !== 'undefined' && trackingNumber !== previous.trackingNumber;
+  let historyWriteWarning: string | null = null;
 
   if (statusChanged) {
     try {
@@ -137,11 +139,20 @@ export async function PATCH(request: Request) {
         },
       });
     } catch {
-      // ignore history write errors so main update stays successful
+      // Fallback compatibility if generated Prisma client is out-of-date with DB schema.
+      try {
+        const historyId = randomUUID();
+        await prisma.$executeRaw`
+          INSERT INTO "OrderStatusHistory" ("id", "orderId", "oldStatus", "newStatus", "note", "changedById", "createdAt")
+          VALUES (${historyId}, ${order.id}, ${previous.status}::"OrderStatus", ${status}::"OrderStatus", ${note ?? null}, ${session.user.id ?? null}, NOW())
+        `;
+      } catch {
+        historyWriteWarning = 'Status berhasil diubah, tetapi riwayat status gagal disimpan.';
+      }
     }
   }
 
-  if (statusChanged || trackingAdded) {
+  if (statusChanged || trackingChanged) {
     try {
       publishOrderUpdate({
         orderId: order.id,
@@ -155,7 +166,7 @@ export async function PATCH(request: Request) {
 
     const msgParts = [`Status pesanan Anda (ID: ${order.id}) telah diperbarui.`];
     if (statusChanged) msgParts.push(`Status: ${status}`);
-    if (trackingAdded) msgParts.push(`No. Resi: ${trackingNumber}`);
+    if (trackingChanged && trackingNumber) msgParts.push(`No. Resi: ${trackingNumber}`);
     msgParts.push('Terima kasih.');
 
     try {
@@ -163,6 +174,10 @@ export async function PATCH(request: Request) {
     } catch {
       // ignore send errors
     }
+  }
+
+  if (historyWriteWarning) {
+    return NextResponse.json({ ...order, warning: historyWriteWarning });
   }
 
   return NextResponse.json(order);

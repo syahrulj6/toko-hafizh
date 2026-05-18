@@ -17,7 +17,7 @@ export default async function PublicLayout({ children }: Readonly<{ children: Re
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(52,103,57,0.08),transparent_48%),radial-gradient(circle_at_top_left,rgba(31,65,34,0.06),transparent_34%),#f7faf7]">
-      <header className="sticky top-0 z-30 border-b border-[var(--color-brand-border)] bg-white/92 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-[var(--color-brand-border)] bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 lg:grid lg:grid-cols-[1fr_auto_1fr]">
           <Link href="/" className="text-[13px] font-black uppercase tracking-[0.08em] text-black transition hover:text-[var(--color-brand-700)] md:text-sm">
             Toko Hafizh
