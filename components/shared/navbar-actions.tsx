@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { Menu, ShoppingBag } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { AuthActions } from '@/components/shared/auth-actions';
 import { useOutsideClick } from '@/lib/hooks/use-outside-click';
 import { useCartStore } from '@/store/cart-store';
@@ -14,11 +15,54 @@ type NavbarActionsProps = {
 
 export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
   const cartItemsCount = useCartStore((state) => state.totalItems());
+  const canSeeAdminDashboard = isAdmin || session?.user?.role === 'ADMIN';
+  const [hasOrdersState, setHasOrdersState] = useState(hasOrders);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(menuRef, () => setMenuOpen(false), menuOpen);
+
+  useEffect(() => {
+    let active = true;
+
+    if (status !== 'authenticated') {
+      setHasOrdersState(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'GET',
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          if (active) setHasOrdersState(false);
+          return;
+        }
+
+        const orders = (await response.json()) as Array<{ id: string }>;
+        if (active) {
+          setHasOrdersState(Array.isArray(orders) && orders.length > 0);
+        }
+      } catch {
+        if (active) setHasOrdersState(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [status]);
 
   return (
     <div className="ml-auto flex items-center justify-end gap-2 text-base text-black">
@@ -33,12 +77,21 @@ export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
         ) : null}
       </Link>
 
-      {isAdmin ? (
+      {canSeeAdminDashboard ? (
         <Link
           href="/dashboard/products"
           className="ml-1 hidden rounded-full border border-black/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-black transition hover:border-[var(--color-brand-700)] hover:text-[var(--color-brand-700)] md:inline-flex"
         >
           Dasbor
+        </Link>
+      ) : null}
+
+      {hasOrdersState ? (
+        <Link
+          href="/orders"
+          className="ml-1 hidden rounded-full border border-[var(--color-brand-700)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white lg:inline-flex"
+        >
+          Pesanan Saya
         </Link>
       ) : null}
 
@@ -69,7 +122,7 @@ export function NavbarActions({ isAdmin, hasOrders }: NavbarActionsProps) {
             >
               Toko
             </Link>
-            {hasOrders ? (
+            {hasOrdersState ? (
               <Link
                 href="/orders"
                 onClick={() => setMenuOpen(false)}

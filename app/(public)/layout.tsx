@@ -20,9 +20,6 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
             <Link href="/about" className="transition hover:text-[var(--color-brand-700)]">
               Tentang Kami
             </Link>
-            <Link href="/orders" className="rounded-full border border-[var(--color-brand-700)] px-3 py-1 text-[11px] tracking-[0.1em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white">
-              Pesanan Saya
-            </Link>
           </nav>
 
           <NavbarActions isAdmin={false} hasOrders={true} />
