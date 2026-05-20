@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Image as ImageIcon, Upload, X } from 'lucide-react';
-import { productSchema, type ProductInput } from '@/lib/validators/product';
+import { productSchema } from '@/lib/validators/product';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -33,7 +34,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
   const [previewUrl, setPreviewUrl] = useState<string>(product?.image ?? '');
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
-  const form = useForm<ProductInput>({
+  const form = useForm<z.input<typeof productSchema>, unknown, z.output<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: product?.name ?? '',

@@ -1,7 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary';
 
 function getImageExtension(file: File) {
-  const nameExtension = path.extname(file.name).toLowerCase();
+  const nameExtensionMatch = file.name.toLowerCase().match(/\.[a-z0-9]+$/i);
+  const nameExtension = nameExtensionMatch?.[0] ?? '';
   if (nameExtension) {
     return nameExtension;
   }

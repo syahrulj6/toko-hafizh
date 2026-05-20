@@ -31,7 +31,10 @@ export default function RevenueOrdersChart({ data }: RevenueOrdersChartProps) {
           />
           <YAxis yAxisId="right" orientation="right" allowDecimals={false} tick={{ fontSize: 12, fill: '#617063' }} tickLine={false} axisLine={false} />
           <Tooltip
-            formatter={(value: number, name: string) => (name === 'Pendapatan' ? formatIDR(value) : value)}
+            formatter={(value, name) => {
+              const numericValue = typeof value === 'number' ? value : Number(value ?? 0);
+              return name === 'Pendapatan' ? formatIDR(numericValue) : numericValue;
+            }}
             labelFormatter={(label) => `Tanggal: ${label}`}
             contentStyle={{ borderRadius: 12, borderColor: '#d9e6da' }}
           />
