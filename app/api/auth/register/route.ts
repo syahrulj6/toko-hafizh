@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { normalizeIndonesianPhoneInput } from '@/lib/phone';
@@ -34,7 +34,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ id: user.id, email: user.email, name: user.name }, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error('Register API error:', error);
     return NextResponse.json({ message: 'Kesalahan server internal' }, { status: 500 });
   }
 }
