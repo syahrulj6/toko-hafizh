@@ -48,7 +48,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
       <div className="rounded-xl border border-[#346739]/20 bg-white p-4">
         <h2 className="text-lg font-semibold">Item Pesanan</h2>
         <ul className="mt-3 space-y-2 text-sm">
-          {order.items.map((item) => (
+          {order.items.map((item: { id: string; quantity: number; price: number; product?: { name: string } | null }) => (
             <li key={item.id} className="rounded border border-[#346739]/15 p-2">
               {(item.product?.name ?? 'Produk') + ' x ' + item.quantity + ' - ' + formatIDR(item.price)}
             </li>
