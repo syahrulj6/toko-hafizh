@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
+import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { NavbarActions } from '../../components/shared/navbar-actions';
 
 export default async function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  let session = null as Awaited<ReturnType<typeof getServerSession>> | null;
+  let session: Session | null = null;
   let hasOrders = false;
 
   try {
