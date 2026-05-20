@@ -5,15 +5,22 @@ import { prisma } from '@/lib/prisma';
 import { NavbarActions } from '../../components/shared/navbar-actions';
 
 export default async function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await getServerSession(authOptions);
-  const hasOrders = session?.user?.id
-    ? Boolean(
-        await prisma.order.findFirst({
-          where: { userId: session.user.id },
-          select: { id: true },
-        }),
-      )
-    : false;
+  let session = null as Awaited<ReturnType<typeof getServerSession>> | null;
+  let hasOrders = false;
+
+  try {
+    session = await getServerSession(authOptions);
+    hasOrders = session?.user?.id
+      ? Boolean(
+          await prisma.order.findFirst({
+            where: { userId: session.user.id },
+            select: { id: true },
+          }),
+        )
+      : false;
+  } catch (error) {
+    console.error('Public layout session/order check failed:', error);
+  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(52,103,57,0.08),transparent_48%),radial-gradient(circle_at_top_left,rgba(31,65,34,0.06),transparent_34%),#f7faf7]">
