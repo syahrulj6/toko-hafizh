@@ -4,6 +4,7 @@ import { formatIDR } from '@/lib/currency';
 import { formatOrderId, getOrderStatusLabel } from '@/lib/order-utils';
 import { prisma } from '@/lib/prisma';
 import OrderStatusStream from '@/components/order/order-status-stream';
+import Reveal from '@/components/shared/reveal';
 
 function getStatusBadgeClass(status: string) {
   const map: Record<string, string> = {
@@ -64,13 +65,16 @@ export default async function OrderDetail({ params }: { params: { id: string } }
   return (
     <section className="space-y-4">
       <OrderStatusStream orderId={order.id} />
-      <div>
+      <Reveal>
+        <div>
         <h1 className="text-2xl font-bold text-[#1f4122]">Detail Pesanan</h1>
         <p className="text-sm text-slate-600">Pantau status pesanan dan lihat rincian item Anda.</p>
-      </div>
+        </div>
+      </Reveal>
 
       <div className="grid gap-4">
-        <article className="rounded-xl border border-[#346739]/20 bg-white p-4">
+        <Reveal>
+          <article className="rounded-xl border border-[#346739]/20 bg-white p-4">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Nomor Pesanan</p>
             <p className="text-lg font-semibold text-[#1f4122]">{formatOrderId(order.id)}</p>
@@ -123,9 +127,11 @@ export default async function OrderDetail({ params }: { params: { id: string } }
               </li>
             ))}
           </ul>
-        </article>
+          </article>
+        </Reveal>
 
-        <article className="rounded-xl border border-[#346739]/20 bg-white p-4">
+        <Reveal delayMs={120}>
+          <article className="rounded-xl border border-[#346739]/20 bg-white p-4">
           <h3 className="font-medium text-[#1f4122]">Riwayat Status</h3>
           {statusHistory.length === 0 ? (
             <p className="mt-2 text-sm text-slate-500">Belum ada riwayat status.</p>
@@ -144,7 +150,8 @@ export default async function OrderDetail({ params }: { params: { id: string } }
               ))}
             </ul>
           )}
-        </article>
+          </article>
+        </Reveal>
       </div>
     </section>
   );

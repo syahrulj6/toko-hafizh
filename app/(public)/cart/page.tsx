@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from 'lucide-react';
+import Reveal from '@/components/shared/reveal';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cart-store';
 import { formatIDR } from '@/lib/currency';
@@ -22,7 +23,7 @@ export default function CartPage() {
         <div className="absolute -left-20 bottom-0 h-52 w-52 rounded-full bg-[#346739]/10 blur-3xl" />
 
         <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-          <div className="max-w-2xl">
+          <Reveal className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--color-brand-muted)]">Tas Hafizh Signature</p>
             <h1 className="mt-3 text-3xl font-black tracking-tight text-[var(--color-brand-900)] sm:text-5xl">Keranjang Belanja</h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">Keranjangmu masih kosong. Tambahkan produk favorit dari katalog untuk melihat ringkasan pesanan dan melanjutkan checkout.</p>
@@ -36,9 +37,9 @@ export default function CartPage() {
                 Kembali ke Beranda
               </Link>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-5 shadow-[0_18px_45px_rgba(52,103,57,0.08)] backdrop-blur-sm sm:p-6">
+          <Reveal className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-5 shadow-[0_18px_45px_rgba(52,103,57,0.08)] backdrop-blur-sm sm:p-6" delayMs={140}>
             <div className="flex items-center gap-3">
               <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--color-brand-soft)] text-[var(--color-brand-700)]">
                 <ShoppingBag className="h-5 w-5" />
@@ -59,7 +60,7 @@ export default function CartPage() {
                 <span className="font-semibold text-[var(--color-brand-900)]">Cepat</span>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     );
@@ -70,7 +71,7 @@ export default function CartPage() {
       <div className="absolute -right-16 top-0 h-40 w-40 rounded-full bg-[#e6efe7]/70 blur-3xl" />
       <div className="absolute -left-20 bottom-0 h-52 w-52 rounded-full bg-[#346739]/10 blur-3xl" />
 
-      <div className="relative mb-6 max-w-2xl">
+      <Reveal className="relative mb-6 max-w-2xl">
         <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--color-brand-muted)]">Tas Hafizh Signature</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -89,16 +90,17 @@ export default function CartPage() {
             <span className="font-semibold">{formatIDR(shipping)}</span> ongkir
           </div>
         </div>
-      </div>
+      </Reveal>
 
       <div className="relative mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         <div className="space-y-4 sm:space-y-5">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const lineTotal = item.price * item.quantity;
 
             return (
-              <article key={item.productId} className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-4 shadow-[0_14px_35px_rgba(52,103,57,0.08)] backdrop-blur-sm sm:p-5">
-                <div className="grid gap-4 sm:grid-cols-[112px_minmax(0,1fr)_auto] sm:gap-5">
+              <Reveal key={item.productId} delayMs={80 + index * 70}>
+                <article className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-4 shadow-[0_14px_35px_rgba(52,103,57,0.08)] backdrop-blur-sm sm:p-5">
+                  <div className="grid gap-4 sm:grid-cols-[112px_minmax(0,1fr)_auto] sm:gap-5">
                   <div className="relative aspect-square overflow-hidden rounded-[1.35rem] bg-white shadow-[0_10px_30px_rgba(52,103,57,0.08)] ring-1 ring-[var(--color-brand-border)]">
                     <Image src={item.image} alt={item.name} fill sizes="112px" className="object-cover" />
                   </div>
@@ -151,13 +153,15 @@ export default function CartPage() {
                       <p className="mt-1 text-xl font-extrabold tracking-tight text-[var(--color-brand-700)]">{formatIDR(lineTotal)}</p>
                     </div>
                   </div>
-                </div>
-              </article>
+                  </div>
+                </article>
+              </Reveal>
             );
           })}
         </div>
 
-        <aside className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-5 shadow-[0_18px_45px_rgba(52,103,57,0.08)] backdrop-blur-sm lg:sticky lg:top-6">
+        <Reveal className="rounded-[1.6rem] border border-[var(--color-brand-border)] bg-white/85 p-5 shadow-[0_18px_45px_rgba(52,103,57,0.08)] backdrop-blur-sm lg:sticky lg:top-6" delayMs={160}>
+          <aside>
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-bold tracking-tight text-[var(--color-brand-900)]">Ringkasan Pesanan</h2>
             <span className="rounded-full bg-[var(--color-brand-soft)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-brand-muted)]">{items.length} item</span>
@@ -198,7 +202,8 @@ export default function CartPage() {
               <span>Pengiriman seluruh Indonesia</span>
             </div>
           </div>
-        </aside>
+          </aside>
+        </Reveal>
       </div>
     </section>
   );

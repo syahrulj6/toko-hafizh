@@ -14,7 +14,7 @@ ToastViewport.displayName = Toast.Viewport.displayName;
 export const ToastRoot = React.forwardRef<React.ElementRef<typeof Toast.Root>, React.ComponentPropsWithoutRef<typeof Toast.Root>>(({ className = '', ...props }, ref) => (
   <Toast.Root
     ref={ref}
-    className={`group relative overflow-hidden rounded-xl border border-[#346739]/25 bg-white p-4 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out ${className}`}
+    className={`toast-root group relative overflow-hidden rounded-xl border border-[#346739]/25 bg-white p-4 shadow-lg ${className}`}
     {...props}
   />
 ));

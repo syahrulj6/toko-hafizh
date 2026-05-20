@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Award, Gem, Hammer } from 'lucide-react';
 import SiteFooter from '@/components/shared/site-footer';
+import Reveal from '@/components/shared/reveal';
 import Image1 from '@/app/assets/images/tas-1.jpg';
 import Image2 from '@/app/assets/images/tas-2.jpg';
 import Image3 from '@/app/assets/images/tas-3.jpg';
@@ -37,7 +38,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="bg-[var(--color-brand-soft)] px-5 py-14 md:px-10 md:py-16">
+      <Reveal className="bg-[var(--color-brand-soft)] px-5 py-14 md:px-10 md:py-16">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.95fr_1.35fr] md:gap-14">
           <div>
             <h2 className="text-4xl font-semibold leading-tight tracking-tight text-[var(--color-brand-900)] md:text-6xl md:leading-[1.02]">Warisan dalam setiap bahan, modern dalam setiap bentuk.</h2>
@@ -54,9 +55,9 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
 
-      <div className="bg-[var(--color-brand-soft)] px-5 pb-14 md:px-10 md:pb-16">
+      <Reveal className="bg-[var(--color-brand-soft)] px-5 pb-14 md:px-10 md:pb-16" delayMs={100}>
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 text-center md:mb-10">
             <h3 className="text-3xl font-semibold tracking-tight text-[var(--color-brand-900)] md:text-4xl">Dipandu Oleh Keunggulan</h3>
@@ -64,45 +65,50 @@ export default function AboutPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {craftPillars.map((pillar) => {
+            {craftPillars.map((pillar, index) => {
               const Icon = pillar.icon;
 
               return (
-                <article
-                  key={pillar.title}
-                  className="rounded-xl border border-[var(--color-brand-border)] bg-white px-6 py-8 text-center shadow-[0_10px_24px_rgba(52,103,57,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(52,103,57,0.1)]"
-                >
-                  <Icon className="mx-auto h-5 w-5 text-[var(--color-brand-700)]" />
-                  <h4 className="mt-4 text-lg font-semibold text-[var(--color-brand-900)]">{pillar.title}</h4>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{pillar.description}</p>
-                </article>
+                <Reveal key={pillar.title} delayMs={140 + index * 100}>
+                  <article className="rounded-xl border border-[var(--color-brand-border)] bg-white px-6 py-8 text-center shadow-[0_10px_24px_rgba(52,103,57,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(52,103,57,0.1)]">
+                    <Icon className="mx-auto h-5 w-5 text-[var(--color-brand-700)]" />
+                    <h4 className="mt-4 text-lg font-semibold text-[var(--color-brand-900)]">{pillar.title}</h4>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{pillar.description}</p>
+                  </article>
+                </Reveal>
               );
             })}
           </div>
         </div>
-      </div>
+      </Reveal>
 
-      <div className="bg-[var(--color-brand-soft)] px-5 pb-14 md:px-10 md:pb-16">
+      <Reveal className="bg-[var(--color-brand-soft)] px-5 pb-14 md:px-10 md:pb-16" delayMs={120}>
         <div className="mx-auto grid max-w-6xl gap-3 md:grid-cols-[2fr_1fr]">
-          <article className="relative min-h-[500px] overflow-hidden rounded-md md:min-h-[700px]">
-            <Image src={Image2} alt="Tas kulit dijahit dengan detail" fill className="object-cover" sizes="(max-width: 768px) 100vw, 66vw" />
-            <span className="absolute bottom-4 left-4 rounded-sm bg-white/95 px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[var(--color-brand-900)]">01. Precision</span>
-          </article>
+          <Reveal>
+            <article className="relative min-h-[500px] overflow-hidden rounded-md md:min-h-[700px]">
+              <Image src={Image2} alt="Tas kulit dijahit dengan detail" fill className="object-cover" sizes="(max-width: 768px) 100vw, 66vw" />
+              <span className="absolute bottom-4 left-4 rounded-sm bg-white/95 px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[var(--color-brand-900)]">01. Precision</span>
+            </article>
+          </Reveal>
 
           <div className="grid gap-3">
-            <article className="relative min-h-[245px] overflow-hidden rounded-md md:min-h-[342px]">
-              <Image src={Image3} alt="Peralatan dan tas dalam proses produksi" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-            </article>
-            <article className="relative min-h-[245px] overflow-hidden rounded-md md:min-h-[342px]">
-              <Image src={Image4} alt="Tekstur tas kulit premium" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-            </article>
+            <Reveal delayMs={100}>
+              <article className="relative min-h-[245px] overflow-hidden rounded-md md:min-h-[342px]">
+                <Image src={Image3} alt="Peralatan dan tas dalam proses produksi" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+              </article>
+            </Reveal>
+            <Reveal delayMs={180}>
+              <article className="relative min-h-[245px] overflow-hidden rounded-md md:min-h-[342px]">
+                <Image src={Image4} alt="Tekstur tas kulit premium" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+              </article>
+            </Reveal>
           </div>
         </div>
 
         <p className="mx-auto mt-8 max-w-6xl text-center text-base font-medium text-[var(--color-brand-900)] md:text-lg">Menjadi brand tas lokal terpercaya dengan kualitas terbaik dan desain kekinian.</p>
-      </div>
+      </Reveal>
 
-      <div className="bg-[var(--color-brand-900)] px-5 py-16 text-white md:px-10 md:py-20">
+      <Reveal className="bg-[var(--color-brand-900)] px-5 py-16 text-white md:px-10 md:py-20" delayMs={140}>
         <div className="mx-auto max-w-6xl text-center">
           <h3 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">Perjalanan Dimulai Dengan Tekat Yang Besar</h3>
           <span className="mx-auto mt-5 block h-px w-24 bg-white/35" />
@@ -112,7 +118,7 @@ export default function AboutPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </Reveal>
 
       <SiteFooter />
     </section>

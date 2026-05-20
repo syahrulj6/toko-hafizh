@@ -1,6 +1,7 @@
 ﻿import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { authOptions } from '@/lib/auth';
+import Reveal from '@/components/shared/reveal';
 import { formatIDR } from '@/lib/currency';
 import { formatOrderId, getOrderStatusLabel } from '@/lib/order-utils';
 import { prisma } from '@/lib/prisma';
@@ -35,20 +36,23 @@ export default async function MyOrdersPage() {
 
   return (
     <section className="space-y-4">
-      <div className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-5 md:p-6">
+      <Reveal className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-5 md:p-6">
         <h1 className="text-2xl font-bold text-[var(--color-brand-900)]">Pesanan Saya</h1>
         <p className="mt-1 text-sm text-slate-600">Pantau status pesanan Anda secara realtime dari halaman ini.</p>
-      </div>
+      </Reveal>
 
       {orders.length === 0 ? (
-        <article className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-8 text-center text-slate-600">
+        <Reveal>
+          <article className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-8 text-center text-slate-600">
           Belum ada pesanan. Mulai belanja dulu untuk melihat riwayat pesanan Anda.
-        </article>
+          </article>
+        </Reveal>
       ) : null}
 
       <ul className="space-y-3">
-        {orders.map((o) => (
-          <li key={o.id} className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-4 shadow-sm">
+        {orders.map((o, index) => (
+          <Reveal key={o.id} delayMs={70 + index * 50}>
+            <li className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-4 shadow-sm">
             <div className="flex flex-col justify-between gap-3 sm:flex-row">
               <div>
                 <div className="font-semibold text-[var(--color-brand-900)]">{formatOrderId(o.id)}</div>
@@ -67,7 +71,8 @@ export default async function MyOrdersPage() {
                 Lihat detail
               </Link>
             </div>
-          </li>
+            </li>
+          </Reveal>
         ))}
       </ul>
     </section>

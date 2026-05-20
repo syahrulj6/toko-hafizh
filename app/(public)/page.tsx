@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Reveal from '@/components/shared/reveal';
 import SiteFooter from '@/components/shared/site-footer';
 import { formatIDR } from '@/lib/currency';
 
@@ -81,7 +82,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-2 md:grid-rows-2 md:gap-4">
+      <Reveal className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-2 md:grid-rows-2 md:gap-4" delayMs={80}>
         <Link href={categoryShowcase[0].href} className="group relative h-[200px] overflow-hidden rounded-2xl bg-[var(--color-brand-soft-alt)] sm:h-[240px] md:row-span-2 md:h-[520px]">
           <Image src={categoryShowcase[0].image} alt={`${categoryShowcase[0].name} placeholder image`} width={500} height={500} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -101,9 +102,9 @@ export default function HomePage() {
             </div>
           </Link>
         ))}
-      </div>
+      </Reveal>
 
-      <div className="rounded-2xl bg-[var(--color-brand-soft)] px-3 py-4 sm:px-4 sm:py-6 md:rounded-3xl md:px-6 md:py-8">
+      <Reveal className="rounded-2xl bg-[var(--color-brand-soft)] px-3 py-4 sm:px-4 sm:py-6 md:rounded-3xl md:px-6 md:py-8" delayMs={120}>
         <div className="mb-4 flex items-center justify-between sm:mb-5 md:mb-6">
           <h2 className="text-xl font-bold tracking-tight text-[var(--color-brand-900)] sm:text-2xl md:text-4xl">Produk Baru</h2>
           <Link href="/products" className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand-muted)] hover:text-[var(--color-brand-900)] sm:text-[10px] md:text-xs">
@@ -122,7 +123,7 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-      </div>
+      </Reveal>
 
       <SiteFooter />
     </section>
