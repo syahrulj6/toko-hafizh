@@ -1,8 +1,4 @@
-import { randomUUID } from 'node:crypto';
-import path from 'node:path';
-import { mkdir, writeFile } from 'node:fs/promises';
-
-const PRODUCT_IMAGE_DIR = path.join(process.cwd(), 'public', 'uploads', 'products');
+import { v2 as cloudinary } from 'cloudinary';
 
 function getImageExtension(file: File) {
   const nameExtension = path.extname(file.name).toLowerCase();
@@ -30,14 +26,44 @@ export async function saveProductImage(file: File) {
     throw new Error('File gambar tidak valid');
   }
 
-  await mkdir(PRODUCT_IMAGE_DIR, { recursive: true });
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error('Cloudinary belum dikonfigurasi');
+  }
+
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  });
 
   const extension = getImageExtension(file);
-  const fileName = `${randomUUID()}${extension}`;
-  const filePath = path.join(PRODUCT_IMAGE_DIR, fileName);
-
+  const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase() || 'image';
+  const publicId = `${baseName}-${Date.now()}`;
+  const folder = process.env.CLOUDINARY_UPLOAD_FOLDER || 'toko-hafizh/products';
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(filePath, buffer);
 
-  return `/uploads/products/${fileName}`;
+  return new Promise<string>((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        public_id: publicId,
+        resource_type: 'image',
+        format: extension.replace('.', ''),
+      },
+      (error, result) => {
+        if (error || !result?.secure_url) {
+          reject(new Error('Gagal upload ke Cloudinary'));
+          return;
+        }
+
+        resolve(result.secure_url);
+      },
+    );
+
+    uploadStream.end(buffer);
+  });
 }
