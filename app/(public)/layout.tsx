@@ -20,7 +20,10 @@ export default async function PublicLayout({ children }: Readonly<{ children: Re
         )
       : false;
   } catch (error) {
-    console.error('Public layout session/order check failed:', error);
+    const digest = typeof error === 'object' && error !== null && 'digest' in error ? (error as { digest?: string }).digest : undefined;
+    if (digest !== 'DYNAMIC_SERVER_USAGE') {
+      console.error('Public layout session/order check failed:', error);
+    }
   }
 
   return (
