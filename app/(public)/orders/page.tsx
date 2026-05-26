@@ -37,8 +37,15 @@ export default async function MyOrdersPage() {
   return (
     <section className="space-y-4">
       <Reveal className="rounded-2xl border border-[var(--color-brand-border)] bg-white p-5 md:p-6">
-        <h1 className="text-2xl font-bold text-[var(--color-brand-900)]">Pesanan Saya</h1>
-        <p className="mt-1 text-sm text-slate-600">Pantau status pesanan Anda secara realtime dari halaman ini.</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--color-brand-900)]">Pesanan Saya</h1>
+            <p className="mt-1 text-sm text-slate-600">Pantau status pesanan Anda secara realtime dari halaman ini.</p>
+          </div>
+          <Link href="/orders/history" className="inline-flex rounded-full border border-[var(--color-brand-700)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-brand-700)] transition hover:bg-[var(--color-brand-700)] hover:text-white">
+            Riwayat Selesai
+          </Link>
+        </div>
       </Reveal>
 
       {orders.length === 0 ? (

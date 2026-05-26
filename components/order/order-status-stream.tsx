@@ -36,6 +36,11 @@ export default function OrderStatusStream({ orderId }: { orderId: string }) {
         description: details || 'Ada pembaruan pada pesanan Anda.',
       });
 
+      if (payload?.status === 'COMPLETED') {
+        router.push(`/orders/history?orderId=${orderId}`);
+        return;
+      }
+
       router.refresh();
     };
 

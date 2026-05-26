@@ -5,6 +5,7 @@ import { formatOrderId, getOrderStatusLabel } from '@/lib/order-utils';
 import { prisma } from '@/lib/prisma';
 import OrderStatusStream from '@/components/order/order-status-stream';
 import Reveal from '@/components/shared/reveal';
+import { redirect } from 'next/navigation';
 
 function getStatusBadgeClass(status: string) {
   const map: Record<string, string> = {
@@ -29,6 +30,7 @@ export default async function OrderDetail({ params }: { params: { id: string } }
 
   if (!order) return <p>Order tidak ditemukan</p>;
   if (order.userId && order.userId !== session?.user?.id) return <p>Tidak berwenang</p>;
+  if (order.status === 'COMPLETED') redirect(`/orders/history?orderId=${order.id}`);
 
   const trackingRows = (await prisma.$queryRaw`SELECT "id", "trackingNumber" FROM "Order" WHERE "id" = ${order.id} LIMIT 1`) as Array<{
     id: string;
